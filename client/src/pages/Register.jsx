@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // logo
 import { Logo, FormRow, Alert } from '../components';
@@ -22,8 +23,23 @@ const Register = () => {
   const [values, setValues] = useState(initialState);
 
   // fetching loading and alert state from hook
-  const { isLoading, showAlert, displayAlert } =
-    useAppContext();
+  const {
+    isLoading,
+    showAlert,
+    displayAlert,
+    registerUser,
+    user,
+  } = useAppContext();
+  const navigate = useNavigate();
+
+  // useEffect
+  useEffect(() => {
+    if (user) {
+      setTimeout(() => {
+        navigate('/');
+      }, 3000);
+    }
+  }, [user, navigate]);
 
   //   handleChange
   const handleChange = (e) => {
@@ -43,7 +59,12 @@ const Register = () => {
       return;
     }
 
-    console.log(values);
+    const currentUser = { name, email, password };
+    if (isMember) {
+      console.log('member');
+    } else {
+      registerUser(currentUser);
+    }
   };
 
   //   toggle menu
@@ -92,6 +113,7 @@ const Register = () => {
         <button
           type='submit'
           className='btn btn-block'
+          disabled={isLoading}
         >
           submit
         </button>
