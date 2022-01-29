@@ -6,8 +6,10 @@ import { StatusCodes } from 'http-status-codes';
 import {
   BadRequest,
   NotFound,
+  Unauthenticated,
 } from '../errors/index.js';
 
+// register user
 const register = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -46,9 +48,40 @@ const register = async (req, res) => {
     location: user.location,
   });
 };
+
+// login user
 const login = async (req, res) => {
-  res.send('login user');
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    throw new BadRequest('Please Provide all Values');
+  }
+
+  const user = await User.findOne({ email }).select('+password');
+
+  // finding user
+  if (!user) {
+    throw new Unauthenticated('Invalid Credentials');
+  }
+
+  // checking for password
+  const isPasswordCorrect = await user.comparePassword(password);
+  if (!isPasswordCorrect) {
+    throw new Unauthenticated('Invalid Credentials');
+  }
+
+  // generating jwt
+  const token = user.createJWT();
+
+  // setting password to undefined
+  user.password = undefined;
+
+  res
+    .status(StatusCodes.OK)
+    .json({ user, token, location: user.location });
 };
+
+// updating user
 const updateUser = async (req, res) => {
   res.send('updateUser user');
 };

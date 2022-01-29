@@ -23,13 +23,8 @@ const Register = () => {
   const [values, setValues] = useState(initialState);
 
   // fetching loading and alert state from hook
-  const {
-    isLoading,
-    showAlert,
-    displayAlert,
-    registerUser,
-    user,
-  } = useAppContext();
+  const { isLoading, showAlert, displayAlert, setupUser, user } =
+    useAppContext();
   const navigate = useNavigate();
 
   // useEffect
@@ -61,9 +56,17 @@ const Register = () => {
 
     const currentUser = { name, email, password };
     if (isMember) {
-      console.log('member');
+      setupUser({
+        currentUser,
+        endPoint: 'login',
+        alertText: 'Login',
+      });
     } else {
-      registerUser(currentUser);
+      setupUser({
+        currentUser,
+        endPoint: 'register',
+        alertText: 'Registration',
+      });
     }
   };
 
@@ -79,9 +82,7 @@ const Register = () => {
     <RegisterPage className='full-page'>
       <form onSubmit={handleSubmit} className='form'>
         <Logo />
-        <h3>
-          {values.isMember ? 'Login' : 'Register'}
-        </h3>
+        <h3>{values.isMember ? 'Login' : 'Register'}</h3>
 
         {showAlert && <Alert />}
 

@@ -1,8 +1,4 @@
-import {
-  useContext,
-  createContext,
-  useReducer,
-} from 'react';
+import { useContext, createContext, useReducer } from 'react';
 import axios from 'axios';
 
 import reducer from './reducer';
@@ -10,9 +6,9 @@ import reducer from './reducer';
 import {
   CLEAR_ALERT,
   DISPLAY_ALERT,
-  REGISTER_USER_BEGIN,
-  REGISTER_USER_ERROR,
-  REGISTER_USER_SUCCESS,
+  SETUP_USER_BEGIN,
+  SETUP_USER_SUCCESS,
+  SETUP_USER_ERROR,
 } from './actions';
 
 const token = localStorage.getItem('user');
@@ -35,10 +31,7 @@ const AppContext = createContext();
 
 const AppProvider = ({ children }) => {
   // state
-  const [state, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   //   displayAlert
   const displayAlert = () => {
@@ -53,21 +46,36 @@ const AppProvider = ({ children }) => {
     }, 3000);
   };
 
-  // register user
-  const registerUser = async (currentUser) => {
-    dispatch({ type: REGISTER_USER_BEGIN });
+  // add to local storage
+  const addUserToLocalStorage = ({ user, token, location }) => {
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('token', token);
+    localStorage.setItem('location', location);
+  };
+
+  // removeUserFromLocalStorage
+  const removeUserFromLocalStorage = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('location');
+  };
+
+  // setupUser
+  const setupUser = async (currentUser, endPoint, alertText) => {
+    dispatch({ type: SETUP_USER_BEGIN });
 
     try {
       const response = await axios.post(
-        '/api/v1/auth/register',
+        `/api/v1/auth/${endPoint}`,
         currentUser
       );
 
       const { user, token, location } = response.data;
 
       dispatch({
-        type: REGISTER_USER_SUCCESS,
+        type: SETUP_USER_SUCCESS,
         payload: {
+          alertText,
           user,
           token,
           location,
@@ -77,34 +85,21 @@ const AppProvider = ({ children }) => {
       addUserToLocalStorage({ user, token, location });
     } catch (error) {
       dispatch({
-        type: REGISTER_USER_ERROR,
+        type: SETUP_USER_ERROR,
         payload: { msg: error.response.data.msg },
       });
     }
 
     clearAlert();
   };
-
-  // add to local storage
-  const addUserToLocalStorage = ({
-    user,
-    token,
-    location,
-  }) => {
-    localStorage.setItem('user', JSON.stringify(user));
-    localStorage.setItem('token', token);
-    localStorage.setItem('location', location);
-  };
-
-  // removing from local storage
-  const removeUserFromLocalStorage = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('location');
-  };
   return (
     <AppContext.Provider
-      value={{ ...state, displayAlert, registerUser }}
+      value={{
+        ...state,
+        displayAlert,
+        setupUser,
+        removeUserFromLocalStorage,
+      }}
     >
       {children}
     </AppContext.Provider>

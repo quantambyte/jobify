@@ -1,12 +1,15 @@
 import {
   DISPLAY_ALERT,
   CLEAR_ALERT,
-  REGISTER_USER_BEGIN,
-  REGISTER_USER_ERROR,
-  REGISTER_USER_SUCCESS,
+  SETUP_USER_BEGIN,
+  SETUP_USER_SUCCESS,
+  SETUP_USER_ERROR,
 } from './actions';
 
 const reducer = (state, action) => {
+  // actions
+
+  // alert actions
   if (action.type === DISPLAY_ALERT) {
     return {
       ...state,
@@ -23,13 +26,15 @@ const reducer = (state, action) => {
       alertText: '',
     };
   }
-  if (action.type === REGISTER_USER_BEGIN) {
+
+  // setup user
+  if (action.type === SETUP_USER_BEGIN) {
     return {
       ...state,
       isLoading: true,
     };
   }
-  if (action.type === REGISTER_USER_SUCCESS) {
+  if (action.type === SETUP_USER_SUCCESS) {
     return {
       ...state,
       user: action.payload.user,
@@ -39,19 +44,18 @@ const reducer = (state, action) => {
       isLoading: false,
       showAlert: true,
       alertType: 'success',
-      alertText:
-        'Registration Successful! Redirecting',
+      alertText: `${action.payload.alertText} Successful! Redirecting`,
     };
   }
-  if (action.type === REGISTER_USER_ERROR) {
+  if (action.type === SETUP_USER_ERROR) {
     return {
       ...state,
       isLoading: false,
-      showAlert: true,
       alertType: 'danger',
       alertText: action.payload.msg,
     };
   }
+
   throw new Error(`no such action: ${action.type}`);
 };
 

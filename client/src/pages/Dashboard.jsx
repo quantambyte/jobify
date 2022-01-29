@@ -1,7 +1,16 @@
-import React from 'react';
+// useContext
+import { useAppContext } from '../context/appContext';
 
 const Dashboard = () => {
-  return <h1>Dashboard</h1>;
+  const { removeUserFromLocalStorage } = useAppContext();
+  const handleClick = () => {
+    removeUserFromLocalStorage();
+  };
+  return (
+    <>
+      <button onClick={handleClick}>Clear LocalStorage</button>
+    </>
+  );
 };
 
 export default Dashboard;

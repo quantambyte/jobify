@@ -43,21 +43,25 @@ const userSchema = new mongoose.Schema({
 // password hashing
 userSchema.pre('save', async function () {
   const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(
-    this.password,
-    salt
-  );
+  this.password = await bcrypt.hash(this.password, salt);
 });
+
+// comparing password
+userSchema.methods.comparePassword = async function (
+  givenPassword
+) {
+  const isMatch = await bcrypt.compare(
+    givenPassword,
+    this.password
+  );
+  return isMatch;
+};
 
 // creating jwt
 userSchema.methods.createJWT = function () {
-  return jwt.sign(
-    { userId: this._id },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: process.env.JWT_LIFETIME,
-    }
-  );
+  return jwt.sign({ userId: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_LIFETIME,
+  });
 };
 
 export default mongoose.model('User', userSchema);
