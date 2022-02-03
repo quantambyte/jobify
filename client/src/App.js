@@ -15,7 +15,6 @@ import {
   AddJob,
   AllJobs,
   Profile,
-  Stats,
   SharedLayout,
 } from './pages/Dashboard/index';
 
